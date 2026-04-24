@@ -18,8 +18,10 @@ window.stagingItems.push(...[
   }
 ]);
 
-## Weekly digest file — data/YYYY-MM-DD-weekly.js
-window.digests = window.digests || {};
+## data/digests.js (full rewrite every Monday, max 5 entries)
+window.digestIndex = ["YYYY-MM-DD", ...]; // most recent first
+
+window.digests = {};
 window.digests["YYYY-MM-DD"] = {
   week: "Week of [Month D, YYYY]",
   sections: {
@@ -30,12 +32,7 @@ window.digests["YYYY-MM-DD"] = {
     social_buzz:    []
   }
 };
-
-## data/index.js
-window.digestIndex = [
-  "YYYY-MM-DD",   // most recent first
-  // max 5 entries
-];
+// repeat window.digests["..."] = {...} for each key in digestIndex
 
 ## Rules
 - Output ONLY the JS file content. No markdown, no explanation, no preamble.

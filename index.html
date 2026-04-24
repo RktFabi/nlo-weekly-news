@@ -490,7 +490,7 @@
 </div>
 
 <!-- STATUS -->
-<div class="status-bar" id="statusBar">Initializing digest loader...</div>
+<div class="status-bar" id="statusBar" style="display:none"></div>
 
 <!-- MAIN CONTENT -->
 <main class="main" id="mainContent" style="display:none">
@@ -538,11 +538,11 @@
 
 </main>
 
+<script src="data/digests.js"></script>
 <script>
 // ── CONFIG ──────────────────────────────────────────────────────────────────
 const SECTIONS = ['engineering', 'security', 'nonprofit', 'opportunities', 'social_buzz'];
 let currentSection = 'engineering';
-let currentDigestKey = null;
 
 // ── SECTION SWITCHING ────────────────────────────────────────────────────────
 function switchSection(section) {
@@ -605,8 +605,6 @@ function renderDigest(key) {
     return;
   }
 
-  currentDigestKey = key;
-
   // Update meta bar
   document.getElementById('digestWeekLabel').textContent = digest.week || key;
   let total = 0;
@@ -649,58 +647,27 @@ function setStatus(msg, isError) {
   el.style.display = msg ? 'block' : 'none';
 }
 
-// ── SEQUENTIAL SCRIPT LOADER (file:// safe) ──────────────────────────────────
-function loadScript(src, cb) {
-  const s = document.createElement('script');
-  s.src = src + '?_=' + Date.now(); // cache-bust
-  s.onload = cb;
-  s.onerror = () => cb(new Error('Failed to load ' + src));
-  document.head.appendChild(s);
-}
-
-function loadAllDigests(keys, idx, cb) {
-  if (idx >= keys.length) { cb(); return; }
-  const key = keys[idx];
-  loadScript('data/' + key + '-weekly.js', function(err) {
-    if (err) console.warn('Could not load digest for', key);
-    loadAllDigests(keys, idx + 1, cb);
-  });
-}
-
 // ── BOOT ─────────────────────────────────────────────────────────────────────
-window.digests = window.digests || {};
-
-setStatus('Loading index...');
-
-loadScript('data/index.js', function(err) {
-  if (err || !window.digestIndex || !window.digestIndex.length) {
-    setStatus('Could not load data/index.js. Make sure you\'re running from the correct folder.', true);
+(function() {
+  if (!window.digestIndex || !window.digestIndex.length) {
+    setStatus('No digest data found.', true);
     return;
   }
-
   const keys = window.digestIndex;
-  setStatus('Loading ' + keys.length + ' digest(s)...');
-
-  loadAllDigests(keys, 0, function() {
-    // Populate week selector
-    const sel = document.getElementById('weekSelect');
-    sel.innerHTML = '';
-    keys.forEach(function(key) {
-      const digest = (window.digests || {})[key];
-      const label = digest ? digest.week : key;
-      const opt = document.createElement('option');
-      opt.value = key;
-      opt.textContent = label;
-      sel.appendChild(opt);
-    });
-
-    // Render most recent
-    if (keys.length) {
-      sel.value = keys[0];
-      renderDigest(keys[0]);
-    }
+  const sel = document.getElementById('weekSelect');
+  sel.innerHTML = '';
+  keys.forEach(function(key) {
+    const opt = document.createElement('option');
+    const digest = (window.digests || {})[key];
+    opt.value = key;
+    opt.textContent = digest ? digest.week : key;
+    sel.appendChild(opt);
   });
-});
+  if (keys.length) {
+    sel.value = keys[0];
+    renderDigest(keys[0]);
+  }
+})();
 </script>
 
 </body>

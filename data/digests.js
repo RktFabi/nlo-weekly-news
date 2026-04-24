@@ -1,4 +1,6 @@
-window.digests = window.digests || {};
+window.digestIndex = ["2026-04-20"];
+
+window.digests = {};
 window.digests["2026-04-20"] = {
   week: "Week of April 20, 2026",
   sections: {
