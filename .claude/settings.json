@@ -1,0 +1,22 @@
+{
+  "$schema": "https://claude.ai/schema/settings.json",
+  "attribution": {
+    "commits": false,
+    "pullRequests": false
+  },
+  "permissions": {
+    "allow": [
+      "Bash(git:*)",
+      "Bash(date:*)",
+      "Read(data/**)",
+      "Write(data/**)",
+      "Read(.claude/**)",
+      "Read(CLAUDE.md)"
+    ],
+    "deny": [
+      "Bash(rm -rf:*)",
+      "Write(index.html)",
+      "Write(.claude/settings.json)"
+    ]
+  }
+}

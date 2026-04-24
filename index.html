@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NLO News Digest</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #FFFFFF;
+    --surface: #F1F4F8;
+    --surface2: #F4F4F2;
+    --border: #E0E3E7;
+    --text: #142757;
+    --muted: #57636C;
+    --accent: #142757;
+
+    --engineering: #0346FF;
+    --security: #C51014;
+    --nonprofit: #076D17;
+    --opportunities: #FFB703;
+    --social: #8D8777;
+
+    --urgency-high: #C51014;
+    --urgency-medium: #FFB703;
+    --urgency-low: #076D17;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { font-size: 16px; scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-weight: 300;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── MASTHEAD ── */
+  .masthead {
+    border-bottom: 1px solid var(--border);
+    padding: 0 2rem;
+    background: var(--bg);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    backdrop-filter: blur(12px);
+  }
+
+  .masthead-inner {
+    max-width: 1280px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 64px;
+    gap: 2rem;
+  }
+
+  .masthead-logo {
+    display: flex;
+    align-items: baseline;
+    gap: 0.6rem;
+    flex-shrink: 0;
+  }
+
+  .masthead-logo .org {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem;
+    font-weight: 500;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .masthead-logo .title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.35rem;
+    font-weight: 900;
+    color: var(--text);
+    letter-spacing: -0.01em;
+  }
+
+  .week-selector {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .week-selector label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .week-selector select {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.75rem;
+    padding: 0.4rem 0.75rem;
+    border-radius: 4px;
+    cursor: pointer;
+    outline: none;
+    appearance: none;
+    -webkit-appearance: none;
+    padding-right: 2rem;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%2357636C'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.6rem center;
+  }
+
+  .week-selector select:hover { border-color: #4B39EF; }
+
+  /* ── SECTION NAV ── */
+  .section-nav {
+    border-bottom: 1px solid var(--border);
+    padding: 0 2rem;
+    background: var(--bg);
+    position: sticky;
+    top: 64px;
+    z-index: 99;
+  }
+
+  .section-nav-inner {
+    max-width: 1280px;
+    margin: 0 auto;
+    display: flex;
+    gap: 0;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .section-nav-inner::-webkit-scrollbar { display: none; }
+
+  .section-tab {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.9rem 1.25rem;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.68rem;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: color 0.15s, border-color 0.15s;
+    white-space: nowrap;
+    background: none;
+    border-left: none;
+    border-right: none;
+    border-top: none;
+    user-select: none;
+  }
+
+  .section-tab:hover { color: var(--text); }
+
+  .section-tab.active { color: var(--text); }
+
+  .section-tab[data-section="engineering"].active  { border-bottom-color: var(--engineering); }
+  .section-tab[data-section="security"].active     { border-bottom-color: var(--security); }
+  .section-tab[data-section="nonprofit"].active    { border-bottom-color: var(--nonprofit); }
+  .section-tab[data-section="opportunities"].active{ border-bottom-color: var(--opportunities); }
+  .section-tab[data-section="social_buzz"].active  { border-bottom-color: var(--social); }
+
+  .tab-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  [data-section="engineering"] .tab-dot    { background: var(--engineering); }
+  [data-section="security"] .tab-dot       { background: var(--security); }
+  [data-section="nonprofit"] .tab-dot      { background: var(--nonprofit); }
+  [data-section="opportunities"] .tab-dot  { background: var(--opportunities); }
+  [data-section="social_buzz"] .tab-dot    { background: var(--social); }
+
+  .tab-count {
+    font-size: 0.6rem;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 0.1rem 0.4rem;
+    color: var(--muted);
+    min-width: 20px;
+    text-align: center;
+  }
+
+  /* ── MAIN LAYOUT ── */
+  .main {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 2rem;
+  }
+
+  /* ── SECTION PANEL ── */
+  .section-panel { display: none; }
+  .section-panel.active { display: block; }
+
+  .section-header {
+    display: flex;
+    align-items: baseline;
+    gap: 1rem;
+    margin-bottom: 1.75rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .section-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.85rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+
+  .section-title.engineering  { color: var(--engineering); }
+  .section-title.security     { color: var(--security); }
+  .section-title.nonprofit    { color: var(--nonprofit); }
+  .section-title.opportunities{ color: var(--opportunities); }
+  .section-title.social_buzz  { color: var(--social); }
+
+  .section-desc {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--muted);
+    letter-spacing: 0.08em;
+  }
+
+  /* ── CARDS ── */
+  .cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+    gap: 1.25rem;
+  }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    transition: border-color 0.2s, transform 0.2s;
+    animation: fadeUp 0.3s ease both;
+  }
+
+  .card:hover {
+    border-color: #C9C7BF;
+    transform: translateY(-2px);
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .card-image {
+    width: 100%;
+    height: 140px;
+    object-fit: cover;
+    background: var(--surface2);
+    display: block;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .card-image-placeholder {
+    width: 100%;
+    height: 140px;
+    background: var(--surface2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .card-image-placeholder .placeholder-icon {
+    font-size: 2rem;
+    opacity: 0.15;
+  }
+
+  .card-body {
+    padding: 1.1rem 1.25rem;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    gap: 0.75rem;
+  }
+
+  .card-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+
+  .badge {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.6rem;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 0.2rem 0.5rem;
+    border-radius: 3px;
+  }
+
+  .badge-source {
+    background: var(--surface2);
+    color: var(--muted);
+    border: 1px solid var(--border);
+  }
+
+  .badge-urgency-high   { background: #FFE4E4; color: var(--urgency-high);   border: 1px solid rgba(197,16,20,0.25); }
+  .badge-urgency-medium { background: #FFFEEA; color: #5B544D;               border: 1px solid rgba(255,183,3,0.4); }
+  .badge-urgency-low    { background: #E5FFE4; color: var(--urgency-low);    border: 1px solid rgba(7,109,23,0.25); }
+
+  .badge-audience {
+    background: #E8F7FF;
+    color: #0079AF;
+    border: 1px solid rgba(3,70,255,0.2);
+  }
+
+  .card-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.05rem;
+    font-weight: 700;
+    line-height: 1.35;
+    color: var(--text);
+    letter-spacing: -0.01em;
+  }
+
+  .card-summary {
+    font-size: 0.85rem;
+    color: #57636C;
+    line-height: 1.6;
+    font-weight: 300;
+  }
+
+  .card-matters {
+    background: #DBE9ff;
+    border-left: 2px solid #0346FF;
+    padding: 0.6rem 0.75rem;
+    border-radius: 0 4px 4px 0;
+    font-size: 0.8rem;
+    color: var(--text);
+    line-height: 1.5;
+    font-weight: 400;
+  }
+
+  .card-matters-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.58rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    display: block;
+    margin-bottom: 0.3rem;
+  }
+
+  .card-link {
+    margin-top: auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    text-decoration: none;
+    transition: color 0.15s;
+    padding-top: 0.25rem;
+  }
+
+  .card-link:hover { color: var(--text); }
+
+  .card-link svg { flex-shrink: 0; }
+
+  /* ── EMPTY STATE ── */
+  .empty-state {
+    text-align: center;
+    padding: 4rem 2rem;
+    color: var(--muted);
+  }
+
+  .empty-state .empty-icon { font-size: 2.5rem; margin-bottom: 1rem; opacity: 0.3; }
+  .empty-state p { font-family: 'IBM Plex Mono', monospace; font-size: 0.75rem; letter-spacing: 0.08em; }
+
+  /* ── LOADING / ERROR ── */
+  .status-bar {
+    max-width: 1280px;
+    margin: 2rem auto;
+    padding: 0 2rem;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--muted);
+    letter-spacing: 0.05em;
+  }
+
+  .status-bar.error { color: var(--urgency-high); }
+
+  /* ── DIGEST META BAR ── */
+  .digest-meta {
+    max-width: 1280px;
+    margin: 1.5rem auto 0;
+    padding: 0 2rem;
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+  }
+
+  .digest-week-label {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.05rem;
+    font-weight: 400;
+    color: var(--muted);
+    font-style: italic;
+  }
+
+  .digest-stats {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--muted);
+    letter-spacing: 0.08em;
+  }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 640px) {
+    .masthead-inner { height: 56px; }
+    .section-nav { top: 56px; }
+    .masthead-logo .title { font-size: 1.1rem; }
+    .cards-grid { grid-template-columns: 1fr; }
+    .main { padding: 1.25rem; }
+    .digest-meta { flex-direction: column; align-items: flex-start; gap: 0.25rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- MASTHEAD -->
+<header class="masthead">
+  <div class="masthead-inner">
+    <div class="masthead-logo">
+      <span class="org">NLO</span>
+      <span class="title">Weekly Digest</span>
+    </div>
+    <div class="week-selector">
+      <label>Edition</label>
+      <select id="weekSelect" onchange="loadDigest(this.value)">
+        <option value="">Loading...</option>
+      </select>
+    </div>
+  </div>
+</header>
+
+<!-- SECTION NAV -->
+<nav class="section-nav">
+  <div class="section-nav-inner" id="sectionNav">
+    <button class="section-tab active" data-section="engineering"   onclick="switchSection('engineering')">
+      <span class="tab-dot"></span>Engineering<span class="tab-count" id="count-engineering">0</span>
+    </button>
+    <button class="section-tab" data-section="security"     onclick="switchSection('security')">
+      <span class="tab-dot"></span>Security / Risk<span class="tab-count" id="count-security">0</span>
+    </button>
+    <button class="section-tab" data-section="nonprofit"    onclick="switchSection('nonprofit')">
+      <span class="tab-dot"></span>Nonprofit / Sector<span class="tab-count" id="count-nonprofit">0</span>
+    </button>
+    <button class="section-tab" data-section="opportunities" onclick="switchSection('opportunities')">
+      <span class="tab-dot"></span>Opportunities<span class="tab-count" id="count-opportunities">0</span>
+    </button>
+    <button class="section-tab" data-section="social_buzz"  onclick="switchSection('social_buzz')">
+      <span class="tab-dot"></span>Social Buzz<span class="tab-count" id="count-social_buzz">0</span>
+    </button>
+  </div>
+</nav>
+
+<!-- DIGEST META -->
+<div class="digest-meta" id="digestMeta" style="display:none">
+  <span class="digest-week-label" id="digestWeekLabel"></span>
+  <span class="digest-stats" id="digestStats"></span>
+</div>
+
+<!-- STATUS -->
+<div class="status-bar" id="statusBar">Initializing digest loader...</div>
+
+<!-- MAIN CONTENT -->
+<main class="main" id="mainContent" style="display:none">
+
+  <!-- Sections -->
+  <div class="section-panel active" id="panel-engineering">
+    <div class="section-header">
+      <h2 class="section-title engineering">Engineering</h2>
+      <span class="section-desc">Stack updates · releases · deprecations · breaking changes</span>
+    </div>
+    <div class="cards-grid" id="cards-engineering"></div>
+  </div>
+
+  <div class="section-panel" id="panel-security">
+    <div class="section-header">
+      <h2 class="section-title security">Security / Risk</h2>
+      <span class="section-desc">CVEs · vendor policy · platform changes · risk signals</span>
+    </div>
+    <div class="cards-grid" id="cards-security"></div>
+  </div>
+
+  <div class="section-panel" id="panel-nonprofit">
+    <div class="section-header">
+      <h2 class="section-title nonprofit">Nonprofit / Sector</h2>
+      <span class="section-desc">CRA/IRS · sector news · regulatory updates · fundraising</span>
+    </div>
+    <div class="cards-grid" id="cards-nonprofit"></div>
+  </div>
+
+  <div class="section-panel" id="panel-opportunities">
+    <div class="section-header">
+      <h2 class="section-title opportunities">Opportunities</h2>
+      <span class="section-desc">Grants · credits · partnerships · discounts for nonprofits</span>
+    </div>
+    <div class="cards-grid" id="cards-opportunities"></div>
+  </div>
+
+  <div class="section-panel" id="panel-social_buzz">
+    <div class="section-header">
+      <h2 class="section-title social_buzz">Social Buzz</h2>
+      <span class="section-desc">Early signals · HN threads · community discussions — unverified, treat as leads</span>
+    </div>
+    <div class="cards-grid" id="cards-social_buzz"></div>
+  </div>
+
+</main>
+
+<script>
+// ── CONFIG ──────────────────────────────────────────────────────────────────
+const SECTIONS = ['engineering', 'security', 'nonprofit', 'opportunities', 'social_buzz'];
+let currentSection = 'engineering';
+let currentDigestKey = null;
+
+// ── SECTION SWITCHING ────────────────────────────────────────────────────────
+function switchSection(section) {
+  currentSection = section;
+  document.querySelectorAll('.section-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.section-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('panel-' + section).classList.add('active');
+  document.querySelector('[data-section="' + section + '"]').classList.add('active');
+}
+
+// ── CARD RENDERER ────────────────────────────────────────────────────────────
+function renderCard(item, idx) {
+  const urgencyClass = 'badge-urgency-' + (item.urgency || 'low');
+  const urgencyLabel = (item.urgency || 'low').toUpperCase();
+
+  const audienceMap = { devs: 'Devs', everyone: 'Everyone', leadership: 'Leadership', 'security/infra': 'Infra' };
+  const audienceLabel = audienceMap[item.audience] || item.audience || 'Everyone';
+
+  const imageHTML = item.image
+    ? `<img class="card-image" src="${escHtml(item.image)}" alt="" loading="lazy"
+         onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`
+      + `<div class="card-image-placeholder" style="display:none"><span class="placeholder-icon">📰</span></div>`
+    : `<div class="card-image-placeholder"><span class="placeholder-icon">📰</span></div>`;
+
+  return `
+    <article class="card" style="animation-delay:${idx * 0.04}s">
+      ${imageHTML}
+      <div class="card-body">
+        <div class="card-meta">
+          <span class="badge badge-source">${escHtml(item.source || 'Unknown')}</span>
+          <span class="badge ${urgencyClass}">${urgencyLabel}</span>
+          <span class="badge badge-audience">${escHtml(audienceLabel)}</span>
+        </div>
+        <h3 class="card-title">${escHtml(item.title)}</h3>
+        <p class="card-summary">${escHtml(item.summary)}</p>
+        <div class="card-matters">
+          <span class="card-matters-label">Why it matters</span>
+          ${escHtml(item.why_it_matters)}
+        </div>
+        <a class="card-link" href="${escHtml(item.url)}" target="_blank" rel="noopener">
+          <svg width="10" height="10" viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M1 9L9 1M9 1H3M9 1V7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          Read source
+        </a>
+      </div>
+    </article>`;
+}
+
+function escHtml(str) {
+  if (!str) return '';
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ── RENDER DIGEST ────────────────────────────────────────────────────────────
+function renderDigest(key) {
+  const digest = (window.digests || {})[key];
+  if (!digest) {
+    setStatus('No digest data found for ' + key, true);
+    return;
+  }
+
+  currentDigestKey = key;
+
+  // Update meta bar
+  document.getElementById('digestWeekLabel').textContent = digest.week || key;
+  let total = 0;
+  SECTIONS.forEach(s => { total += (digest.sections[s] || []).length; });
+  document.getElementById('digestStats').textContent = total + ' items curated';
+  document.getElementById('digestMeta').style.display = 'flex';
+
+  // Render each section
+  SECTIONS.forEach(section => {
+    const items = digest.sections[section] || [];
+    const container = document.getElementById('cards-' + section);
+    const countEl = document.getElementById('count-' + section);
+
+    countEl.textContent = items.length;
+
+    if (items.length === 0) {
+      container.innerHTML = `<div class="empty-state" style="grid-column:1/-1">
+        <div class="empty-icon">○</div>
+        <p>No items this week for this category.</p>
+      </div>`;
+    } else {
+      container.innerHTML = items.map((item, i) => renderCard(item, i)).join('');
+    }
+  });
+
+  document.getElementById('mainContent').style.display = 'block';
+  setStatus('');
+}
+
+function loadDigest(key) {
+  if (!key) return;
+  renderDigest(key);
+}
+
+// ── STATUS ───────────────────────────────────────────────────────────────────
+function setStatus(msg, isError) {
+  const el = document.getElementById('statusBar');
+  el.textContent = msg;
+  el.className = 'status-bar' + (isError ? ' error' : '');
+  el.style.display = msg ? 'block' : 'none';
+}
+
+// ── SEQUENTIAL SCRIPT LOADER (file:// safe) ──────────────────────────────────
+function loadScript(src, cb) {
+  const s = document.createElement('script');
+  s.src = src + '?_=' + Date.now(); // cache-bust
+  s.onload = cb;
+  s.onerror = () => cb(new Error('Failed to load ' + src));
+  document.head.appendChild(s);
+}
+
+function loadAllDigests(keys, idx, cb) {
+  if (idx >= keys.length) { cb(); return; }
+  const key = keys[idx];
+  loadScript('data/' + key + '-weekly.js', function(err) {
+    if (err) console.warn('Could not load digest for', key);
+    loadAllDigests(keys, idx + 1, cb);
+  });
+}
+
+// ── BOOT ─────────────────────────────────────────────────────────────────────
+window.digests = window.digests || {};
+
+setStatus('Loading index...');
+
+loadScript('data/index.js', function(err) {
+  if (err || !window.digestIndex || !window.digestIndex.length) {
+    setStatus('Could not load data/index.js. Make sure you\'re running from the correct folder.', true);
+    return;
+  }
+
+  const keys = window.digestIndex;
+  setStatus('Loading ' + keys.length + ' digest(s)...');
+
+  loadAllDigests(keys, 0, function() {
+    // Populate week selector
+    const sel = document.getElementById('weekSelect');
+    sel.innerHTML = '';
+    keys.forEach(function(key) {
+      const digest = (window.digests || {})[key];
+      const label = digest ? digest.week : key;
+      const opt = document.createElement('option');
+      opt.value = key;
+      opt.textContent = label;
+      sel.appendChild(opt);
+    });
+
+    // Render most recent
+    if (keys.length) {
+      sel.value = keys[0];
+      renderDigest(keys[0]);
+    }
+  });
+});
+</script>
+
+</body>
+</html>
