@@ -6,6 +6,8 @@ on:
     paths:
       - 'index.html'
       - 'data/**'
+      - '.nojekyll'
+      - '.github/workflows/pages.yml'
 
 permissions:
   contents: read
